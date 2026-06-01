@@ -263,7 +263,19 @@ async function doLogin(){
   const email=$('#l-email').value.trim(), pass=$('#l-pass').value;
   if(!email||!pass){ $('#l-err').textContent='Preencha e-mail e senha.'; return; }
   try{ await signInWithEmailAndPassword(auth,email,pass); }
-  catch(e){ $('#l-err').textContent='E-mail ou senha inválidos.'; }
+  catch(e){
+    const map = {
+      'auth/invalid-credential':'E-mail ou senha incorretos.',
+      'auth/invalid-email':'E-mail inválido.',
+      'auth/user-not-found':'Usuário não existe. Crie-o em Authentication → Users.',
+      'auth/wrong-password':'Senha incorreta.',
+      'auth/operation-not-allowed':'Ative o login Email/senha em Authentication → Sign-in method.',
+      'auth/unauthorized-domain':'Domínio não autorizado. Adicione este site em Authentication → Settings → Authorized domains.',
+      'auth/network-request-failed':'Falha de rede. Verifique sua conexão.'
+    };
+    $('#l-err').textContent = map[e.code] || ('Erro: ' + (e.code || e.message));
+    console.error('Login error:', e);
+  }
 }
 
 /* ---------- Firestore em tempo real ---------- */
