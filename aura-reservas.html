@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aura Lounge Bar · Reservas · Dia dos Namorados</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Yellowtail&family=Petit+Formal+Script&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#f3e8d7;
+    --paper-2:#fbf4e8;
+    --paper-3:#fdf9f1;
+    --red:#bf362a;
+    --red-deep:#9c2419;
+    --red-bright:#d24535;
+    --rose:#cf7b6e;
+    --ink:#4a3a32;
+    --ink-soft:#9b8a7c;
+    --line:rgba(191,54,42,.22);
+    --line-warm:rgba(120,90,70,.18);
+    --shadow:0 22px 50px -26px rgba(120,40,30,.45);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    font-family:'Jost',sans-serif;
+    color:var(--ink);
+    background:var(--paper);
+    min-height:100vh;
+    padding:clamp(20px,4vw,52px);
+    -webkit-font-smoothing:antialiased;
+    position:relative;
+    overflow-x:hidden;
+  }
+  /* paper grain */
+  body::before{
+    content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.05'/%3E%3C/svg%3E");
+    mix-blend-mode:multiply;
+  }
+  /* envelope corners */
+  .env{position:fixed;z-index:0;pointer-events:none;width:0;height:0}
+  .env.tl{top:0;left:0;border-top:120px solid var(--red);border-right:120px solid transparent;opacity:.92}
+  .env.bl{bottom:0;left:0;border-bottom:150px solid var(--red);border-right:150px solid transparent;opacity:.92}
+  .env.br{bottom:0;right:0;border-bottom:150px solid var(--red);border-left:150px solid transparent;opacity:.92}
+  @media(max-width:720px){.env.tl{border-top-width:70px;border-right-width:70px}.env.bl,.env.br{border-bottom-width:90px;border-left-width:90px;border-right-width:90px}}
+
+  .wrap{max-width:1060px;margin:0 auto;position:relative;z-index:1}
+
+  /* ---------- HEADER ---------- */
+  header.top{text-align:center;padding:6px 0 26px;animation:rise .8s ease both}
+  .logo{font-family:'Cormorant Garamond',serif;font-weight:600;font-size:clamp(1.6rem,5vw,2.1rem);letter-spacing:.42em;color:var(--red);padding-left:.42em}
+  .logo-sub{font-size:.56rem;letter-spacing:.55em;color:var(--ink-soft);text-transform:uppercase;margin-top:3px;padding-left:.55em}
+  .heart-hand{width:54px;height:46px;margin:16px auto 6px;display:block;color:var(--red)}
+  .dia{font-family:'Cormorant Garamond',serif;letter-spacing:.42em;font-size:clamp(.9rem,3vw,1.15rem);color:var(--red);text-transform:uppercase;padding-left:.42em;margin-top:4px}
+  .namorados{font-family:'Yellowtail',cursive;color:var(--red);font-size:clamp(3.4rem,13vw,6rem);line-height:.78;margin-top:-2px}
+  .divider{height:1.5px;background:var(--red);width:min(560px,82%);margin:18px auto 0;opacity:.85}
+  .tagline{font-family:'Petit Formal Script',cursive;font-size:clamp(1.3rem,4vw,1.9rem);color:var(--red);margin-top:16px}
+  .datechip{display:inline-flex;align-items:center;gap:8px;margin-top:14px;font-size:.7rem;letter-spacing:.2em;text-transform:uppercase;color:var(--ink-soft)}
+  .datechip b{font-family:'Cormorant Garamond',serif;font-size:1.05rem;letter-spacing:.05em;color:var(--red);font-weight:700}
+
+  /* ---------- STATS ---------- */
+  .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin:30px 0 30px;animation:rise .8s .08s ease both}
+  .stat{background:var(--paper-2);border:1px solid var(--line-warm);border-radius:14px;padding:16px 16px;position:relative;overflow:hidden;box-shadow:0 10px 24px -20px rgba(120,40,30,.4)}
+  .stat::before{content:"";position:absolute;top:0;left:0;width:100%;height:3px;background:var(--red);opacity:.85}
+  .stat .lbl{font-size:.64rem;letter-spacing:.2em;text-transform:uppercase;color:var(--ink-soft)}
+  .stat .val{font-family:'Cormorant Garamond',serif;font-size:clamp(1.6rem,5vw,2.2rem);font-weight:700;color:var(--red);margin-top:5px;line-height:1}
+  .stat .val .ppl{display:block;font-family:'Jost';font-size:.6rem;font-weight:400;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-soft);margin-top:5px}
+
+  /* ---------- LAYOUT ---------- */
+  .grid{display:grid;grid-template-columns:380px 1fr;gap:22px;align-items:start}
+  .panel{background:var(--paper-3);border:1px solid var(--line-warm);border-radius:18px;padding:26px;box-shadow:var(--shadow);animation:rise .8s .16s ease both;position:relative}
+  .panel h2{font-family:'Cormorant Garamond',serif;font-weight:600;font-size:1.65rem;color:var(--red);display:flex;align-items:center;gap:10px;margin-bottom:3px}
+  .panel h2 small{font-family:'Jost';font-size:.62rem;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-soft);font-weight:400;margin-left:auto}
+  .panel .hint{color:var(--ink-soft);font-size:.84rem;margin-bottom:20px}
+  .panel .martini{position:absolute;right:18px;bottom:16px;width:34px;height:42px;color:var(--rose);opacity:.5;pointer-events:none}
+
+  /* ---------- FORM ---------- */
+  .field{margin-bottom:15px}
+  label{display:block;font-size:.66rem;letter-spacing:.16em;text-transform:uppercase;color:var(--red);margin-bottom:7px;font-weight:500}
+  input,select{
+    width:100%;background:#fff;border:1px solid var(--line-warm);border-radius:10px;
+    color:var(--ink);font-family:'Jost';font-size:.96rem;padding:12px 13px;transition:.22s;
+  }
+  input::placeholder{color:#c3b3a4}
+  input:focus,select:focus{outline:none;border-color:var(--red);box-shadow:0 0 0 3px rgba(191,54,42,.12)}
+  select{appearance:none;cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' fill='none'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23bf362a' stroke-width='1.5'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 13px center}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:12px;align-items:start}
+  .warn{font-size:.76rem;color:var(--red-deep);margin-top:6px;display:none}
+  .warn.show{display:block}
+  .btn{
+    width:100%;margin-top:8px;cursor:pointer;border:none;border-radius:11px;padding:15px;
+    font-family:'Jost';font-weight:600;font-size:.78rem;letter-spacing:.18em;text-transform:uppercase;
+    color:#fdf9f1;background:var(--red);transition:.22s;
+  }
+  .btn:hover{background:var(--red-deep);transform:translateY(-2px);box-shadow:0 12px 24px -12px rgba(156,36,25,.7)}
+  .btn:active{transform:translateY(0)}
+  .btn.ghost{background:transparent;border:1px solid var(--line);color:var(--red);margin-top:10px}
+  .btn.ghost:hover{background:rgba(191,54,42,.07);color:var(--red-deep);box-shadow:none;transform:none}
+
+  /* ---------- LIST ---------- */
+  .toolbar{display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap}
+  .search{flex:1;min-width:160px}
+  .search input{padding:11px 13px;font-size:.9rem}
+  .res-list{display:flex;flex-direction:column;gap:11px;max-height:560px;overflow-y:auto;padding-right:4px}
+  .res-list::-webkit-scrollbar{width:6px}
+  .res-list::-webkit-scrollbar-thumb{background:var(--rose);border-radius:6px}
+  .res{
+    display:grid;grid-template-columns:auto 1fr auto;gap:14px;align-items:center;
+    background:var(--paper-2);border:1px solid var(--line-warm);border-radius:13px;padding:13px 15px;
+    transition:.2s;animation:pop .35s ease both;
+  }
+  .res:hover{border-color:var(--line);box-shadow:0 8px 20px -16px rgba(120,40,30,.5)}
+  .mesa{width:50px;height:50px;flex:none;border-radius:11px;display:grid;place-items:center;background:var(--red);color:#fdf9f1}
+  .mesa .m-lbl{font-size:.5rem;letter-spacing:.12em;text-transform:uppercase;opacity:.85}
+  .mesa .m-num{font-family:'Cormorant Garamond',serif;font-weight:700;font-size:1.5rem;line-height:.8}
+  .res .info .nome{font-family:'Cormorant Garamond',serif;font-size:1.32rem;font-weight:600;line-height:1.1;color:var(--ink)}
+  .res .info .tel{display:inline-flex;align-items:center;gap:5px;margin-top:3px;font-size:.78rem;color:var(--ink-soft);text-decoration:none;transition:.2s}
+  .res .info .tel:hover{color:var(--red)}
+  .res .info .tel svg{width:12px;height:12px}
+  .res .info .meta{display:flex;gap:7px;flex-wrap:wrap;margin-top:5px}
+  .tag{font-size:.66rem;letter-spacing:.04em;padding:3px 9px;border-radius:20px;border:1px solid var(--line-warm);color:var(--ink-soft)}
+  .tag.casais{color:var(--red);border-color:var(--line)}
+  .tag.pay{color:var(--rose);border-color:rgba(207,123,110,.45)}
+  .res .right{text-align:right;display:flex;flex-direction:column;align-items:flex-end;gap:7px}
+  .valor{font-family:'Cormorant Garamond',serif;font-size:1.32rem;font-weight:700;color:var(--red)}
+  .acts{display:flex;gap:6px}
+  .icon-btn{width:30px;height:30px;border-radius:8px;border:1px solid var(--line-warm);background:#fff;color:var(--ink-soft);cursor:pointer;display:grid;place-items:center;transition:.2s}
+  .icon-btn:hover{color:var(--red);border-color:var(--red)}
+  .icon-btn.del:hover{color:var(--red-deep);border-color:var(--red-deep)}
+  .icon-btn svg{width:15px;height:15px}
+
+  .empty{text-align:center;padding:46px 20px;color:var(--ink-soft)}
+  .empty svg{width:44px;height:44px;color:var(--rose);opacity:.6;margin-bottom:12px}
+  .empty p{font-family:'Petit Formal Script',cursive;font-size:1.5rem;color:var(--red);opacity:.8}
+
+  .loading{text-align:center;padding:40px;color:var(--ink-soft);font-family:'Petit Formal Script',cursive;font-size:1.4rem}
+
+  footer{text-align:center;margin-top:30px;color:var(--ink-soft);font-size:.72rem;letter-spacing:.08em}
+
+  .toast{position:fixed;bottom:26px;left:50%;transform:translateX(-50%) translateY(140%);background:var(--red);color:#fdf9f1;padding:13px 26px;border-radius:30px;font-size:.85rem;letter-spacing:.04em;z-index:50;transition:.4s cubic-bezier(.2,1,.3,1);box-shadow:0 16px 30px -14px rgba(156,36,25,.7)}
+  .toast.show{transform:translateX(-50%) translateY(0)}
+
+  @keyframes rise{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:none}}
+  @keyframes pop{from{opacity:0;transform:scale(.97)}to{opacity:1;transform:none}}
+
+  @media(max-width:860px){.grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<span class="env tl"></span><span class="env bl"></span><span class="env br"></span>
+
+<div class="wrap">
+
+  <header class="top">
+    <div class="logo">AURA</div>
+    <div class="logo-sub">Lounge Bar</div>
+
+    <svg class="heart-hand" viewBox="0 0 60 52" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M30 47C30 47 6 33 4 16C2.8 7 9 3 14 4.5C20 6 23 12 30 18C36 11 40 5.5 46 4.5C52 3.4 57 8 56 16C54 32 30 47 30 47Z"/>
+    </svg>
+
+    <div class="dia">Dia dos</div>
+    <div class="namorados">namorados</div>
+    <div class="divider"></div>
+    <div class="tagline">você, eu e um pouco de magia</div>
+    <div class="datechip">Controle de reservas · <b>12 de Junho</b></div>
+  </header>
+
+  <section class="stats">
+    <div class="stat"><div class="lbl">Reservas</div><div class="val" id="st-count">—</div></div>
+    <div class="stat"><div class="lbl">Casais</div><div class="val" id="st-casais">—</div></div>
+    <div class="stat"><div class="lbl">Mesas ocupadas</div><div class="val" id="st-mesas">—</div></div>
+    <div class="stat"><div class="lbl">Total arrecadado</div><div class="val" id="st-total">—</div></div>
+    <div class="stat"><div class="lbl">Ticket médio</div><div class="val" id="st-medio">—</div></div>
+  </section>
+
+  <div class="grid">
+
+    <!-- FORM -->
+    <div class="panel">
+      <h2>Nova reserva <small id="form-mode">Cadastrar</small></h2>
+      <p class="hint">Preencha os dados do casal e confirme a reserva da mesa.</p>
+
+      <div class="field">
+        <label for="f-nome">Responsável pela reserva</label>
+        <input id="f-nome" type="text" placeholder="Ex.: Marina Oliveira" autocomplete="off">
+      </div>
+
+      <div class="field">
+        <label for="f-tel">Telefone para contato</label>
+        <input id="f-tel" type="tel" placeholder="(00) 00000-0000" autocomplete="off">
+      </div>
+
+      <div class="row2">
+        <div class="field">
+          <label for="f-mesa">Nº da mesa</label>
+          <input id="f-mesa" type="number" min="1" placeholder="12">
+          <div class="warn" id="mesa-warn">Esta mesa já está reservada.</div>
+        </div>
+        <div class="field">
+          <label for="f-casais">Casais na mesa</label>
+          <input id="f-casais" type="number" min="1" step="1" value="1">
+        </div>
+      </div>
+
+      <div class="row2">
+        <div class="field">
+          <label for="f-valor">Valor pago (R$)</label>
+          <input id="f-valor" type="number" min="0" step="0.01" placeholder="350,00">
+        </div>
+        <div class="field">
+          <label for="f-pag">Forma de pagamento</label>
+          <select id="f-pag">
+            <option value="Pix">Pix</option>
+            <option value="Cartão de crédito">Cartão de crédito</option>
+            <option value="Cartão de débito">Cartão de débito</option>
+            <option value="Dinheiro">Dinheiro</option>
+            <option value="Transferência">Transferência</option>
+          </select>
+        </div>
+      </div>
+
+      <button class="btn" id="btn-save">Confirmar reserva</button>
+      <button class="btn ghost" id="btn-cancel" style="display:none">Cancelar edição</button>
+
+      <svg class="martini" viewBox="0 0 60 74" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M8 14h44L30 40Z"/><path d="M30 40v24"/><path d="M18 66h24"/>
+        <circle cx="44" cy="9" r="4"/><path d="M44 13v1"/>
+      </svg>
+    </div>
+
+    <!-- LIST -->
+    <div class="panel">
+      <h2>Reservas confirmadas <small id="list-count"></small></h2>
+      <div class="toolbar">
+        <div class="search"><input id="search" type="text" placeholder="Buscar por nome, telefone, mesa ou pagamento…"></div>
+        <button class="btn ghost" id="btn-export" style="width:auto;margin-top:0;padding:11px 18px">Exportar CSV</button>
+      </div>
+      <div id="list-area"><div class="loading">Carregando reservas…</div></div>
+    </div>
+
+  </div>
+
+  <footer>Aura Lounge Bar · os dados ficam salvos neste dispositivo.</footer>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const KEY = 'aura-reservas-v1';
+let reservas = [];
+let editId = null;
+
+const $ = s => document.querySelector(s);
+const fmt = v => 'R$ ' + Number(v||0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+
+function toast(msg){
+  const t = $('#toast'); t.textContent = msg; t.classList.add('show');
+  clearTimeout(t._tm); t._tm = setTimeout(()=>t.classList.remove('show'),2600);
+}
+
+async function load(){
+  try{
+    const r = await window.storage.get(KEY);
+    reservas = r && r.value ? JSON.parse(r.value) : [];
+  }catch(e){ reservas = []; }
+  render();
+}
+async function save(){
+  try{ await window.storage.set(KEY, JSON.stringify(reservas)); }
+  catch(e){ toast('Erro ao salvar — tente novamente.'); }
+}
+
+function stats(){
+  const total = reservas.reduce((s,r)=>s+Number(r.valor||0),0);
+  const casais = reservas.reduce((s,r)=>s+Number(r.casais||1),0);
+  $('#st-count').textContent = reservas.length;
+  $('#st-casais').innerHTML = casais + '<span class="ppl">' + (casais*2) + ' pessoas</span>';
+  $('#st-mesas').textContent = new Set(reservas.map(r=>r.mesa)).size;
+  $('#st-total').textContent = fmt(total);
+  $('#st-medio').textContent = reservas.length ? fmt(total/reservas.length) : 'R$ 0,00';
+  $('#list-count').textContent = reservas.length ? reservas.length + (reservas.length>1?' reservas':' reserva') : '';
+}
+
+function render(){
+  stats();
+  const q = ($('#search').value||'').toLowerCase().trim();
+  const list = reservas
+    .filter(r => !q || r.nome.toLowerCase().includes(q) || String(r.mesa).includes(q) || r.pagamento.toLowerCase().includes(q) || (r.tel||'').toLowerCase().includes(q))
+    .sort((a,b)=>Number(a.mesa)-Number(b.mesa));
+
+  const area = $('#list-area');
+  if(!reservas.length){
+    area.innerHTML = '<div class="empty"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 21s-7.5-4.9-10-9.2C.5 9 1.6 5.5 4.8 5c2-.3 3.6.9 4.5 2.3C10.2 5.9 11.8 4.7 13.8 5 17 5.5 18.1 9 16.6 11.8 14 16.1 12 21 12 21z"/></svg><p>Nenhuma reserva ainda</p></div>';
+    return;
+  }
+  if(!list.length){ area.innerHTML = '<div class="empty"><p>Nada encontrado.</p></div>'; return; }
+
+  area.innerHTML = '<div class="res-list">' + list.map(r=>`
+    <div class="res">
+      <div class="mesa"><div class="m-lbl">Mesa</div><div class="m-num">${esc(r.mesa)}</div></div>
+      <div class="info">
+        <div class="nome">${esc(r.nome)}</div>
+        ${r.tel ? `<a class="tel" href="tel:${esc(String(r.tel).replace(/[^0-9+]/g,''))}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3 19.5 19.5 0 0 1-6-6 19.8 19.8 0 0 1-3-8.6A2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.3 1.8.6 2.7a2 2 0 0 1-.5 2.1L8 9.6a16 16 0 0 0 6 6l1.1-1.1a2 2 0 0 1 2.1-.5c.9.3 1.8.5 2.7.6a2 2 0 0 1 1.7 2z"/></svg>${esc(r.tel)}</a>` : ''}
+        <div class="meta"><span class="tag casais">${Number(r.casais||1)} ${Number(r.casais||1)>1?'casais':'casal'}</span><span class="tag pay">${esc(r.pagamento)}</span></div>
+      </div>
+      <div class="right">
+        <div class="valor">${fmt(r.valor)}</div>
+        <div class="acts">
+          <button class="icon-btn" title="Editar" onclick="edit('${r.id}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4v16h16v-7M18.5 2.5a2.1 2.1 0 0 1 3 3L12 15l-4 1 1-4z"/></svg></button>
+          <button class="icon-btn del" title="Excluir" onclick="remove('${r.id}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"/></svg></button>
+        </div>
+      </div>
+    </div>`).join('') + '</div>';
+}
+
+function esc(s){return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+
+function checkMesa(){
+  const mesa = $('#f-mesa').value.trim();
+  const taken = mesa && reservas.some(r=>String(r.mesa)===mesa && r.id!==editId);
+  $('#mesa-warn').classList.toggle('show', !!taken);
+  return !taken;
+}
+$('#f-mesa').addEventListener('input', checkMesa);
+
+async function onSave(){
+  const nome = $('#f-nome').value.trim();
+  const tel = $('#f-tel').value.trim();
+  const mesa = $('#f-mesa').value.trim();
+  const casais = Math.max(1, Math.floor(Number($('#f-casais').value)||1));
+  const valor = $('#f-valor').value;
+  const pagamento = $('#f-pag').value;
+
+  if(!nome){ toast('Informe o nome do responsável.'); $('#f-nome').focus(); return; }
+  if(!mesa){ toast('Informe o número da mesa.'); $('#f-mesa').focus(); return; }
+  if(!checkMesa()){ toast('Esta mesa já está reservada.'); return; }
+
+  if(editId){
+    const r = reservas.find(x=>x.id===editId);
+    Object.assign(r,{nome,tel,mesa,casais,valor:Number(valor||0),pagamento});
+    toast('Reserva atualizada.'); resetForm();
+  }else{
+    reservas.push({id:'r'+Date.now()+Math.random().toString(36).slice(2,6),nome,tel,mesa,casais,valor:Number(valor||0),pagamento,criadoEm:Date.now()});
+    toast('Reserva confirmada \u2665'); clearForm();
+  }
+  await save(); render();
+}
+
+window.edit = function(id){
+  const r = reservas.find(x=>x.id===id); if(!r) return;
+  editId = id;
+  $('#f-nome').value = r.nome;
+  $('#f-tel').value = r.tel||'';
+  $('#f-mesa').value = r.mesa;
+  $('#f-casais').value = r.casais||1;
+  $('#f-valor').value = r.valor;
+  $('#f-pag').value = r.pagamento;
+  $('#form-mode').textContent = 'Editando';
+  $('#btn-save').textContent = 'Salvar alterações';
+  $('#btn-cancel').style.display = 'block';
+  checkMesa();
+  document.querySelector('.panel').scrollIntoView({behavior:'smooth',block:'start'});
+};
+
+window.remove = async function(id){
+  const r = reservas.find(x=>x.id===id);
+  if(!confirm('Excluir a reserva da mesa ' + r.mesa + ' (' + r.nome + ')?')) return;
+  reservas = reservas.filter(x=>x.id!==id);
+  if(editId===id) resetForm();
+  await save(); render();
+  toast('Reserva excluída.');
+};
+
+function clearForm(){
+  $('#f-nome').value=''; $('#f-tel').value=''; $('#f-mesa').value=''; $('#f-casais').value='1'; $('#f-valor').value=''; $('#f-pag').selectedIndex=0;
+  $('#mesa-warn').classList.remove('show'); $('#f-nome').focus();
+}
+function resetForm(){
+  editId=null; clearForm();
+  $('#form-mode').textContent='Cadastrar';
+  $('#btn-save').textContent='Confirmar reserva';
+  $('#btn-cancel').style.display='none';
+}
+
+$('#btn-save').addEventListener('click', onSave);
+$('#btn-cancel').addEventListener('click', resetForm);
+$('#search').addEventListener('input', render);
+document.addEventListener('keydown', e=>{ if(e.key==='Enter' && ['f-nome','f-tel','f-mesa','f-casais','f-valor'].includes(document.activeElement.id)) onSave(); });
+
+$('#btn-export').addEventListener('click', ()=>{
+  if(!reservas.length){ toast('Não há reservas para exportar.'); return; }
+  const rows = [['Responsável','Telefone','Mesa','Casais','Pessoas','Valor pago','Forma de pagamento']];
+  reservas.slice().sort((a,b)=>Number(a.mesa)-Number(b.mesa)).forEach(r=>{
+    const c = Number(r.casais||1);
+    rows.push([r.nome,r.tel||'',r.mesa,c,c*2,Number(r.valor).toFixed(2).replace('.',','),r.pagamento]);
+  });
+  const csv = rows.map(r=>r.map(c=>'"'+String(c).replace(/"/g,'""')+'"').join(';')).join('\n');
+  const blob = new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob); a.download = 'aura-reservas.csv'; a.click();
+  toast('CSV exportado.');
+});
+
+load();
+</script>
+</body>
+</html>
