@@ -71,6 +71,9 @@
   .col.current{border-color:var(--tan);box-shadow:0 0 0 2px rgba(193,140,70,.18)}
   .col h2{font-size:.72rem;letter-spacing:.2em;text-transform:uppercase;color:var(--tan-deep);font-weight:600;display:flex;align-items:center;gap:8px;padding:4px 4px 12px}
   .col h2 .cnt{margin-left:auto;font-size:.62rem;color:var(--ink-soft);font-weight:400;letter-spacing:.08em;background:rgba(193,140,70,.12);padding:2px 8px;border-radius:20px}
+  .col-sum{font-size:.72rem;color:var(--ink-soft);padding:0 4px 12px;border-bottom:1px solid var(--line);margin-bottom:10px}
+  .col-sum .ok{color:var(--ok);white-space:nowrap}
+  #btn-filter.active{background:var(--tan);color:#fff;border-color:var(--tan)}
   .days{display:flex;flex-direction:column;gap:9px;overflow-y:auto;padding-right:2px}
   .days::-webkit-scrollbar{width:5px}.days::-webkit-scrollbar-thumb{background:var(--tan-soft);border-radius:5px}
   .day{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px;cursor:pointer;transition:.18s;display:flex;align-items:center;gap:12px}
@@ -186,6 +189,8 @@
     <div class="board-head">
       <h1>Reservas por mês</h1>
       <span class="hint" id="board-hint"></span>
+      <span class="sp" style="flex:1"></span>
+      <button class="btn outline" id="btn-filter">Somente hoje</button>
     </div>
     <div id="board"><div class="loading">Carregando reservas…</div></div>
   </div>
@@ -310,30 +315,41 @@ function listen(){
 }
 
 /* ---------- board ---------- */
+let filterToday = false;
+
 function renderBoard(){
   const board=$('#board');
-  const total=reservas.length;
-  const totalP=reservas.reduce((s,r)=>s+Number(r.pessoas||0),0);
-  $('#board-hint').textContent = total ? `${total} reservas · ${totalP} pessoas` : '';
+  const today=todayStr(); const curMonth=today.slice(0,7);
+  const src = filterToday ? reservas.filter(r=>r.data===today) : reservas;
+
+  const total=src.length;
+  const totalP=src.reduce((s,r)=>s+Number(r.pessoas||0),0);
+  const totalArr=src.filter(r=>r.compareceu).length;
+  $('#board-hint').textContent = total
+    ? `${total} reservas · ${totalP} pessoas · ✓ ${totalArr} presente${totalArr!==1?'s':''}`
+    : '';
 
   if(!total){
-    board.innerHTML='<div class="board-empty"><div class="lg">Nenhuma reserva ainda</div><div>Clique em “Nova reserva” para começar.</div></div>';
+    board.innerHTML = filterToday
+      ? '<div class="board-empty"><div class="lg">Nenhuma reserva para hoje</div><div>Use “Ver todos” para ver os outros dias.</div></div>'
+      : '<div class="board-empty"><div class="lg">Nenhuma reserva ainda</div><div>'+(isAdmin?'Clique em “Nova reserva” para começar.':'Aguarde o cadastro das reservas.')+'</div></div>';
     return;
   }
   // agrupar por mês -> dia
   const months={};
-  for(const r of reservas){
+  for(const r of src){
     if(!r.data) continue;
     const mk=r.data.slice(0,7);
     (months[mk]=months[mk]||{})[r.data]=(months[mk][r.data]||[]);
     months[mk][r.data].push(r);
   }
-  const today=todayStr(); const curMonth=today.slice(0,7);
   const mkeys=Object.keys(months).sort();
   board.innerHTML=mkeys.map(mk=>{
     const [y,m]=mk.split('-').map(Number);
     const days=Object.keys(months[mk]).sort();
-    const mp=days.reduce((s,d)=>s+months[mk][d].reduce((a,r)=>a+Number(r.pessoas||0),0),0);
+    const allRes=days.reduce((a,d)=>a.concat(months[mk][d]),[]);
+    const mp=allRes.reduce((a,r)=>a+Number(r.pessoas||0),0);
+    const mArr=allRes.filter(r=>r.compareceu).length;
     const cur = mk===curMonth ? ' current':'';
     const dayCards=days.map(ds=>{
       const list=months[mk][ds]; const d=parseD(ds);
@@ -347,7 +363,8 @@ function renderBoard(){
       </div>`;
     }).join('');
     return `<div class="col${cur}" data-month="${mk}">
-      <h2>${MESES[m-1]} ${y} <span class="cnt">${days.length} ${days.length>1?'dias':'dia'} · ${mp} pess.</span></h2>
+      <h2>${MESES[m-1]} ${y} <span class="cnt">${days.length} ${days.length>1?'dias':'dia'}</span></h2>
+      <div class="col-sum">${allRes.length} reservas · ${mp} pessoas · <span class="ok">✓ ${mArr} de ${allRes.length} presente${mArr!==1?'s':''}</span></div>
       <div class="days">${dayCards}</div>
     </div>`;
   }).join('');
@@ -432,8 +449,16 @@ $('#fab').addEventListener('click',()=>{ editId=null; formDate=todayStr(); openR
 $('#btn-save').addEventListener('click',saveRes);
 $('#btn-del').addEventListener('click',()=>{ if(editId) delRes(editId); });
 $('#btn-today').addEventListener('click',()=>{
-  const cur=document.querySelector('.col.current'); if(cur) cur.scrollIntoView({behavior:'smooth',inline:'start',block:'nearest'});
-  const t=document.querySelector('.day.is-today'); if(t){ t.style.transition='box-shadow .3s'; }
+  const today=todayStr();
+  if(reservas.some(r=>r.data===today)){ window.openDay(today); }
+  else { toast('Nenhuma reserva para hoje.'); const cur=document.querySelector('.col.current'); if(cur) cur.scrollIntoView({behavior:'smooth',inline:'start',block:'nearest'}); }
+});
+$('#btn-filter').addEventListener('click',()=>{
+  filterToday=!filterToday;
+  const b=$('#btn-filter');
+  b.textContent = filterToday ? 'Ver todos' : 'Somente hoje';
+  b.classList.toggle('active', filterToday);
+  renderBoard();
 });
 [$('#dayOverlay'),$('#resOverlay')].forEach(o=>o.addEventListener('click',e=>{ if(e.target===o){ o.classList.remove('show'); if(o.id==='resOverlay')closeRes(); else closeDay(); } }));
 document.addEventListener('keydown',e=>{ if(e.key==='Escape'){ $('#resOverlay').classList.remove('show'); $('#dayOverlay').classList.remove('show'); } });
