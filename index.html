@@ -114,8 +114,30 @@
   .toast.show{transform:translateX(-50%) translateY(0)}
   .banner{background:#fff;border-left:5px solid var(--tan);border-radius:10px;padding:14px 18px;margin:0 0 18px;font-size:.88rem;line-height:1.5}
 
+  /* botão flutuante (mobile) */
+  .fab{display:none;position:fixed;right:18px;bottom:18px;width:58px;height:58px;border-radius:50%;background:var(--tan);color:#fff;border:none;font-size:1.9rem;font-weight:300;line-height:1;box-shadow:0 12px 26px -8px rgba(80,55,20,.75);cursor:pointer;z-index:30;align-items:center;justify-content:center}
+  .fab:active{background:var(--tan-deep)}
+
   @keyframes pop{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
-  @media(max-width:600px){.col{flex-basis:84vw}}
+
+  @media(max-width:640px){
+    header.bar{padding:12px 14px;gap:9px}
+    header.bar img{height:28px}
+    header.bar .ttl{display:none}
+    #btn-new{display:none}                 /* no celular usa o botão flutuante */
+    header.bar .btn{padding:9px 13px;font-size:.6rem;letter-spacing:.08em}
+    .board-wrap{padding:16px 12px 92px}
+    .board-head{margin-bottom:13px;gap:4px}
+    .board-head h1{font-size:1.2rem}
+    .board{gap:12px;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch}
+    .col{flex-basis:86vw;max-height:calc(100vh - 196px);padding:12px}
+    .fab{display:flex}
+    .overlay{padding:0;align-items:flex-end}
+    .modal{max-width:none;width:100%;max-height:92vh;display:flex;flex-direction:column;border-bottom-left-radius:0;border-bottom-right-radius:0}
+    .modal .m-body{overflow-y:auto}
+    .res-item .acts .btn{padding:9px 14px}
+    #login img{width:200px}
+  }
 </style>
 </head>
 <body>
@@ -186,6 +208,7 @@
   </div>
 </div>
 
+<button class="fab" id="fab" aria-label="Nova reserva">+</button>
 <div class="toast" id="toast"></div>
 
 <script type="module">
@@ -369,6 +392,7 @@ async function saveRes(){
 
 /* ---------- buttons ---------- */
 $('#btn-new').addEventListener('click',()=>{ editId=null; formDate=todayStr(); openRes(); });
+$('#fab').addEventListener('click',()=>{ editId=null; formDate=todayStr(); openRes(); });
 $('#btn-save').addEventListener('click',saveRes);
 $('#btn-del').addEventListener('click',()=>{ if(editId) delRes(editId); });
 $('#btn-today').addEventListener('click',()=>{
