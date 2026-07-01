@@ -74,6 +74,10 @@
   .col-sum{font-size:.72rem;color:var(--ink-soft);padding:0 4px 12px;border-bottom:1px solid var(--line);margin-bottom:10px}
   .col-sum .ok{color:var(--ok);white-space:nowrap}
   #btn-filter.active{background:var(--tan);color:#fff;border-color:var(--tan)}
+  #btn-past.active{background:var(--tan);color:#fff;border-color:var(--tan)}
+  .col.past{opacity:.6}
+  .col.past:hover{opacity:1}
+  .col.past h2{color:var(--ink-soft)}
   .days{display:flex;flex-direction:column;gap:9px;overflow-y:auto;padding-right:2px}
   .days::-webkit-scrollbar{width:5px}.days::-webkit-scrollbar-thumb{background:var(--tan-soft);border-radius:5px}
   .day{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px;cursor:pointer;transition:.18s;display:flex;align-items:center;gap:12px}
@@ -190,6 +194,7 @@
       <h1>Reservas por mês</h1>
       <span class="hint" id="board-hint"></span>
       <span class="sp" style="flex:1"></span>
+      <button class="btn outline" id="btn-past" style="display:none">Meses anteriores</button>
       <button class="btn outline" id="btn-filter">Somente hoje</button>
     </div>
     <div id="board"><div class="loading">Carregando reservas…</div></div>
@@ -316,20 +321,16 @@ function listen(){
 
 /* ---------- board ---------- */
 let filterToday = false;
+let showPast = false;
 
 function renderBoard(){
   const board=$('#board');
   const today=todayStr(); const curMonth=today.slice(0,7);
   const src = filterToday ? reservas.filter(r=>r.data===today) : reservas;
 
-  const total=src.length;
-  const totalP=src.reduce((s,r)=>s+Number(r.pessoas||0),0);
-  const totalArr=src.filter(r=>r.compareceu).length;
-  $('#board-hint').textContent = total
-    ? `${total} reservas · ${totalP} pessoas · ✓ ${totalArr} presente${totalArr!==1?'s':''}`
-    : '';
-
-  if(!total){
+  if(!src.length){
+    $('#board-hint').textContent='';
+    const pb=$('#btn-past'); if(pb) pb.style.display='none';
     board.innerHTML = filterToday
       ? '<div class="board-empty"><div class="lg">Nenhuma reserva para hoje</div><div>Use “Ver todos” para ver os outros dias.</div></div>'
       : '<div class="board-empty"><div class="lg">Nenhuma reserva ainda</div><div>'+(isAdmin?'Clique em “Nova reserva” para começar.':'Aguarde o cadastro das reservas.')+'</div></div>';
@@ -344,13 +345,34 @@ function renderBoard(){
     months[mk][r.data].push(r);
   }
   const mkeys=Object.keys(months).sort();
-  board.innerHTML=mkeys.map(mk=>{
+  const past=mkeys.filter(mk=>mk<curMonth);
+  const visibleKeys = showPast ? mkeys : mkeys.filter(mk=>mk>=curMonth);
+
+  // botão "meses anteriores"
+  const pastBtn=$('#btn-past');
+  if(pastBtn){
+    if(past.length && !filterToday){ pastBtn.style.display=''; pastBtn.textContent = showPast?'Ocultar anteriores':('Meses anteriores ('+past.length+')'); pastBtn.classList.toggle('active',showPast); }
+    else pastBtn.style.display='none';
+  }
+
+  // resumo do topo (apenas meses visíveis)
+  const vis=[]; visibleKeys.forEach(mk=>Object.values(months[mk]).forEach(l=>vis.push(...l)));
+  const totalP=vis.reduce((s,r)=>s+Number(r.pessoas||0),0);
+  const totalArr=vis.filter(r=>r.compareceu).length;
+  $('#board-hint').textContent = vis.length ? `${vis.length} reservas · ${totalP} pessoas · ✓ ${totalArr} presente${totalArr!==1?'s':''}` : '';
+
+  if(!visibleKeys.length){
+    board.innerHTML='<div class="board-empty"><div class="lg">Sem reservas neste período</div><div>Há '+past.length+' mês(es) anterior(es) oculto(s) — toque em “Meses anteriores”.</div></div>';
+    return;
+  }
+
+  board.innerHTML=visibleKeys.map(mk=>{
     const [y,m]=mk.split('-').map(Number);
     const days=Object.keys(months[mk]).sort();
     const allRes=days.reduce((a,d)=>a.concat(months[mk][d]),[]);
     const mp=allRes.reduce((a,r)=>a+Number(r.pessoas||0),0);
     const mArr=allRes.filter(r=>r.compareceu).length;
-    const cur = mk===curMonth ? ' current':'';
+    const cur = mk===curMonth ? ' current' : (mk<curMonth ? ' past' : '');
     const dayCards=days.map(ds=>{
       const list=months[mk][ds]; const d=parseD(ds);
       const p=list.reduce((a,r)=>a+Number(r.pessoas||0),0);
@@ -460,6 +482,7 @@ $('#btn-filter').addEventListener('click',()=>{
   b.classList.toggle('active', filterToday);
   renderBoard();
 });
+$('#btn-past').addEventListener('click',()=>{ showPast=!showPast; renderBoard(); });
 [$('#dayOverlay'),$('#resOverlay')].forEach(o=>o.addEventListener('click',e=>{ if(e.target===o){ o.classList.remove('show'); if(o.id==='resOverlay')closeRes(); else closeDay(); } }));
 document.addEventListener('keydown',e=>{ if(e.key==='Escape'){ $('#resOverlay').classList.remove('show'); $('#dayOverlay').classList.remove('show'); } });
 </script>
